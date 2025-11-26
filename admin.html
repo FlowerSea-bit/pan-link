@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<title>反馈管理 - 资源站后台</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  .admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  .admin-header {
+    background: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+  }
+
+  .admin-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #3c4b57;
+    margin: 0 0 8px;
+  }
+
+  .admin-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 24px;
+  }
+
+  .stat-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    flex: 1;
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 32px;
+    font-weight: 600;
+    color: #1f6bff;
+    margin-bottom: 8px;
+  }
+
+  .stat-label {
+    color: #6c7784;
+    font-size: 14px;
+  }
+
+  .feedback-list {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .feedback-header {
+    background: #f7f7f7;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .feedback-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #3c4b57;
+  }
+
+  .feedback-actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .btn-primary {
+    background: #1f6bff;
+    color: #fff;
+  }
+
+  .btn-primary:hover {
+    background: #1154d8;
+  }
+
+  .btn-danger {
+    background: #ff4757;
+    color: #fff;
+  }
+
+  .btn-danger:hover {
+    background: #ff3742;
+  }
+
+  .feedback-item {
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .feedback-item:last-child {
+    border-bottom: none;
+  }
+
+  .feedback-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .feedback-type {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .type-missing {
+    background: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .type-broken {
+    background: #ffebee;
+    color: #d32f2f;
+  }
+
+  .type-error {
+    background: #fff3e0;
+    color: #f57c00;
+  }
+
+  .type-other {
+    background: #f3e5f5;
+    color: #7b1fa2;
+  }
+
+  .feedback-time {
+    color: #88919f;
+    font-size: 14px;
+  }
+
+  .feedback-content {
+    margin: 12px 0;
+  }
+
+  .feedback-resource {
+    font-weight: 600;
+    color: #3c4b57;
+    margin-bottom: 8px;
+  }
+
+  .feedback-description {
+    color: #6c7784;
+    line-height: 1.5;
+  }
+
+  .feedback-contact {
+    background: #f7f7f7;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #6c7784;
+    margin-top: 8px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 24px;
+    color: #88919f;
+  }
+
+  .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+
+  .filter-select {
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+
+<div class="admin-container">
+  <div class="admin-header">
+    <h1 class="admin-title">反馈管理后台</h1>
+    <p style="color: #6c7784; margin: 0;">管理用户提交的资源反馈信息</p>
+  </div>
+
+  <div class="admin-stats">
+    <div class="stat-card">
+      <div class="stat-number" id="totalCount">0</div>
+      <div class="stat-label">总反馈数</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="todayCount">0</div>
+      <div class="stat-label">今日新增</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="missingCount">0</div>
+      <div class="stat-label">缺少资源</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" id="brokenCount">0</div>
+      <div class="stat-label">链接失效</div>
+    </div>
+  </div>
+
+  <div class="feedback-list">
+    <div class="feedback-header">
+      <div class="feedback-title">用户反馈列表</div>
+      <div class="feedback-actions">
+        <div class="filter-bar">
+          <select class="filter-select" id="typeFilter" onchange="filterFeedbacks()">
+            <option value="all">全部类型</option>
+            <option value="missing">缺少资源</option>
+            <option value="broken">链接失效</option>
+            <option value="error">资源错误</option>
+            <option value="other">其他问题</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="refreshFeedbacks()">刷新</button>
+        <button class="btn btn-danger" onclick="clearAllFeedbacks()">清空全部</button>
+      </div>
+    </div>
+    
+    <div id="feedbackContainer">
+      <div class="empty-state">
+        <div class="empty-icon">📝</div>
+        <div>暂无反馈信息</div>
+        <div style="font-size: 14px; margin-top: 8px;">用户提交反馈后会在这里显示</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8" />
+<title>搜索结果 - 资源站</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="feedback" href="mailto:feedback@example.com">缺剧/失效，点这里反馈</a>
+
+<!-- 顶部搜索栏 -->
+<header class="search-page-header">
+  <div class="header-logo" onclick="goHome()">
+    <!-- <div class="logo-icon">一</div> -->
+    <div class="logo-text">资源站</div>
+  </div>
+  
+  <div class="header-search">
+    <input id="headerKeyword" placeholder="输入关键词进行搜索" />
+    <button class="search-button" id="headerSearchBtn">🔍</button>
+  </div>
+  
+  <div class="header-feedback" onclick="showFeedbackModal()">缺剧/失效，点这里反馈</div>
+</header>
+
+<!-- 搜索结果页面 -->
+<div class="search-results-page active">
+  <div class="filter-sidebar">
+    <div class="filter-section">
+      <div class="filter-title">筛选</div>
+      <div class="filter-option active" data-filter="all">全部</div>
+      <div class="filter-option" data-filter="guangboju">广播剧近期</div>
+      <div class="filter-option" data-filter="xiaoshuo">小说</div>
+      <div class="filter-option" data-filter="manhua">漫画</div>
+      <div class="filter-option" data-filter="qita">其他</div>
+    </div>
+  </div>
+  
+  <div class="results-content">
+    <div class="search-header">
+      <div class="search-title">
+        为您找到【<span id="searchKeyword">加载中...</span>】相关资源 <span class="search-count" id="resultCount">0</span> 条
+      </div>
+    </div>
+    
+    <div class="results-list" id="resultsList">
+      <div style="text-align: center; padding: 40px; color: #88919f;">
+        正在加载搜索结果...
+      </div>
+    </div>
+    
+    <div class="pagination" id="pagination">
+      <button class="pagination-btn">‹</button>
+      <button class="pagination-btn active">1</button>
+      <button class="pagination-btn">›</button>
+    </div>
+  </div>
+</div>
+
+<!-- 反馈弹窗 -->
+<div class="feedback-modal" id="feedbackModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>缺剧/失效反馈</h3>
+      <span class="close-btn" onclick="closeFeedbackModal()">×</span>
+    </div>
+    <div class="modal-body">
+      <p>如果缺少某部剧、遇到了某一集、资源链接失效，请在这里直接反馈！我看到后会第一时间处理~</p>
+      <form id="feedbackForm">
+        <div class="form-group">
+          <label>反馈类型：</label>
+          <select id="feedbackType">
+            <option value="missing">缺少资源</option>
+            <option value="broken">链接失效</option>
+            <option value="error">资源错误</option>
+            <option value="other">其他问题</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>资源名称：</label>
+          <input type="text" id="resourceName" placeholder="请输入资源名称" />
+        </div>
+        <div class="form-group">
+          <label>详细描述：</label>
+          <textarea id="feedbackContent" placeholder="请详细描述问题，比如：第几集无法播放、缺少哪部剧等..." rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label>联系方式（可选）：</label>
+          <input type="text" id="contactInfo" placeholder="QQ、微信或邮箱，方便我联系您" />
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-submit" onclick="submitFeedback()">告诉一姐</button>
+    </div>
+  </div>
+</div>
+
+<footer>© 资源站</footer>
+
+<script src="search.js"></script>
+
+</body>
+</html>

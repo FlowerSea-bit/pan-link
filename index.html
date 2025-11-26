@@ -2,64 +2,75 @@
 <html lang="zh">
 <head>
 <meta charset="UTF-8" />
-<title>资源检索导航</title>
-<style>
-  body { font-family: Arial; padding: 20px; }
-  input { width: 260px; padding: 8px; font-size: 16px; }
-  button { padding: 8px 16px; font-size: 16px; margin-left: 8px; }
-  .result { margin-top: 20px; font-size: 18px; }
-</style>
+<title>资源站</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<h2>资源查询系统</h2>
+<a class="feedback" href="#" onclick="showFeedbackModal()">缺剧/失效，点这里反馈</a>
 
-<input id="keyword" placeholder="输入资源名称，如：广播剧、漫画…" />
-<button onclick="search()">搜索</button>
+<main>
+  <div class="logo">
+    <div class="logo-icon">一</div>
+    <div class="logo-title">资源站</div>
+    <div class="logo-desc">累计更新8500+部广播剧，广播剧界的天花板 NO.1</div>
+  </div>
 
-<div class="result" id="result"></div>
+  <div class="search-bar">
+    <input
+      id="keyword"
+      placeholder="输入关键词进行搜索"
+      aria-label="资源关键词"
+    />
+    <button class="search-button" id="searchBtn" aria-label="搜索">
+      🔍
+    </button>
+  </div>
 
-<script>
-let data = {};
-let dataReady = false;
+</main>
 
-fetch("data.json")
-  .then((res) => res.json())
-  .then((json) => {
-    data = json;
-    dataReady = true;
-  })
-  .catch(() => {
-    const result = document.getElementById("result");
-    result.innerHTML = "数据加载失败，请刷新页面重试。";
-  });
+<!-- 反馈弹窗 -->
+<div class="feedback-modal" id="feedbackModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>缺剧/失效反馈</h3>
+      <span class="close-btn" onclick="closeFeedbackModal()">×</span>
+    </div>
+    <div class="modal-body">
+      <p>如果缺少某部剧、遇到了某一集、资源链接失效，请在这里直接反馈！我看到后会第一时间处理~</p>
+      <form id="feedbackForm">
+        <div class="form-group">
+          <label>反馈类型：</label>
+          <select id="feedbackType">
+            <option value="missing">缺少资源</option>
+            <option value="broken">链接失效</option>
+            <option value="error">资源错误</option>
+            <option value="other">其他问题</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>资源名称：</label>
+          <input type="text" id="resourceName" placeholder="请输入资源名称" />
+        </div>
+        <div class="form-group">
+          <label>详细描述：</label>
+          <textarea id="feedbackContent" placeholder="请详细描述问题，比如：第几集无法播放、缺少哪部剧等..." rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label>联系方式（可选）：</label>
+          <input type="text" id="contactInfo" placeholder="QQ、微信或邮箱，方便我联系您" />
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-submit" onclick="submitFeedback()">告诉一姐</button>
+    </div>
+  </div>
+</div>
 
-function search() {
-  const key = document.getElementById("keyword").value.trim();
-  const result = document.getElementById("result");
+<footer>© 资源站</footer>
 
-  if (!key) {
-    result.innerHTML = "请输入名称，例如：广播剧、漫画…";
-    return;
-  }
-
-  if (!dataReady) {
-    result.innerHTML = "数据加载中，请稍后再试…";
-    return;
-  }
-
-  const link = data[key];
-  if (link) {
-    result.innerHTML = `
-      <b>${key}</b><br />
-      <a href="${link}" target="_blank">${link}</a><br />
-      提取码：ct67
-    `;
-  } else {
-    result.innerHTML = "未找到对应资源，请检查名称或联系管理员。";
-  }
-}
-</script>
+<script src="app.js"></script>
 
 </body>
 </html>
