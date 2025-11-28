@@ -1,3 +1,20 @@
+// ============ LeanCloud 配置 ============
+// 请在 https://console.leancloud.cn 注册并创建应用后，填入以下信息
+const LEANCLOUD_CONFIG = {
+  appId: '6bijC37wqZ7WEYHldHo2uug4-gzGzoHsz',
+  appKey: 'N43jv3jZO671FbvmNC7eoT0J',
+  serverURL: 'https://6bijc37w.lc-cn-n1-shared.com'
+};
+
+// 初始化 LeanCloud
+function initLeanCloud() {
+  if (LEANCLOUD_CONFIG.appId === 'YOUR_APP_ID') {
+    console.warn('请先配置 LeanCloud，详见 app.js 顶部说明');
+    return false;
+  }
+  return true;
+}
+
 function search() {
   const keyword = document.getElementById("keyword").value.trim();
   
@@ -40,97 +57,53 @@ function submitFeedback() {
     resourceName: resourceName,
     content: content,
     contact: contact,
-    timestamp: new Date().toLocaleString(),
+    timestamp: new Date().toISOString(),
     userAgent: navigator.userAgent,
     url: window.location.href
   };
 
-  // 方案1：保存到本地存储
-  let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
-  feedbacks.push(feedbackData);
-  localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
-
-  // 方案2：通过邮件发送反馈
-  sendEmailFeedback(feedbackData);
-
-  // 方案3：发送到第三方服务（如果配置了）
-  sendToWebhook(feedbackData);
-
-  // 显示成功提示
-  alert('反馈提交成功！感谢您的反馈，我会尽快处理~');
-  
-  // 关闭弹窗
-  closeFeedbackModal();
-
-  // 在控制台输出反馈信息（方便开发者查看）
-  console.log('新反馈:', feedbackData);
+  // 保存到 LeanCloud 云端数据库
+  saveFeedbackToCloud(feedbackData);
 }
 
-// 方案2：通过邮件发送反馈
-function sendEmailFeedback(data) {
-  const typeLabels = {
-    missing: '缺少资源',
-    broken: '链接失效', 
-    error: '资源错误',
-    other: '其他问题'
-  };
-
-  const subject = `[资源站反馈] ${typeLabels[data.type]} - ${data.resourceName || '用户反馈'}`;
-  const body = `
-反馈类型：${typeLabels[data.type]}
-资源名称：${data.resourceName || '未填写'}
-详细描述：${data.content || '未填写'}
-联系方式：${data.contact || '未提供'}
-提交时间：${data.timestamp}
-页面地址：${data.url}
-浏览器信息：${data.userAgent}
-  `.trim();
-
-  // 方法1：使用 mailto 链接（会打开用户的邮件客户端）
-  const mailtoLink = `mailto:your-email@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  
-  // 静默尝试打开邮件客户端（用户可能没有配置）
-  try {
-    const link = document.createElement('a');
-    link.href = mailtoLink;
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    // link.click(); // 取消自动点击，避免打扰用户
-    document.body.removeChild(link);
-  } catch (e) {
-    console.log('邮件客户端不可用');
+// 保存反馈到 LeanCloud 云端
+async function saveFeedbackToCloud(data) {
+  if (!initLeanCloud()) {
+    // 如果没配置 LeanCloud，降级到本地存储
+    let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+    feedbacks.push(data);
+    localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+    alert('反馈提交成功！（本地模式）');
+    closeFeedbackModal();
+    return;
   }
-}
 
-// 方案3：发送到第三方服务
-function sendToWebhook(data) {
-  // 可以使用免费的第三方服务，如：
-  // 1. Formspree.io
-  // 2. Netlify Forms  
-  // 3. Google Forms
-  // 4. 企业微信机器人
-  // 5. 钉钉机器人
-
-  // 示例：发送到企业微信机器人（需要替换为你的webhook地址）
-  const webhookUrl = 'YOUR_WEBHOOK_URL_HERE'; // 替换为实际的webhook地址
-  
-  if (webhookUrl && webhookUrl !== 'YOUR_WEBHOOK_URL_HERE') {
-    const message = {
-      msgtype: "text",
-      text: {
-        content: `📝 新的资源反馈\n类型：${data.type}\n资源：${data.resourceName}\n描述：${data.content}\n联系：${data.contact}\n时间：${data.timestamp}`
-      }
-    };
-
-    fetch(webhookUrl, {
+  try {
+    const response = await fetch(`${LEANCLOUD_CONFIG.serverURL}/1.1/classes/Feedback`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-LC-Id': LEANCLOUD_CONFIG.appId,
+        'X-LC-Key': LEANCLOUD_CONFIG.appKey
       },
-      body: JSON.stringify(message)
-    }).catch(err => {
-      console.log('Webhook发送失败:', err);
+      body: JSON.stringify(data)
     });
+
+    if (response.ok) {
+      alert('反馈提交成功！感谢您的反馈，我会尽快处理~');
+      closeFeedbackModal();
+      console.log('反馈已保存到云端:', data);
+    } else {
+      throw new Error('提交失败');
+    }
+  } catch (error) {
+    console.error('云端保存失败:', error);
+    // 降级到本地存储
+    let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
+    feedbacks.push(data);
+    localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
+    alert('反馈提交成功！');
+    closeFeedbackModal();
   }
 }
 
