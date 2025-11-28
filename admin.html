@@ -205,11 +205,105 @@
     border-radius: 6px;
     font-size: 14px;
   }
+
+  /* 密码保护样式 */
+  .login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .login-box {
+    background: #fff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    max-width: 360px;
+    width: 90%;
+  }
+
+  .login-box h2 {
+    margin: 0 0 8px;
+    color: #3c4b57;
+    font-size: 24px;
+  }
+
+  .login-box p {
+    color: #6c7784;
+    margin: 0 0 24px;
+    font-size: 14px;
+  }
+
+  .login-box input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 16px;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+  }
+
+  .login-box input:focus {
+    outline: none;
+    border-color: #1f6bff;
+  }
+
+  .login-box button {
+    width: 100%;
+    padding: 12px;
+    background: #1f6bff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .login-box button:hover {
+    background: #1154d8;
+  }
+
+  .login-error {
+    color: #ff4757;
+    font-size: 14px;
+    margin-top: 12px;
+    display: none;
+  }
+
+  .admin-content {
+    display: none;
+  }
+
+  .admin-content.unlocked {
+    display: block;
+  }
 </style>
 </head>
 <body>
 
-<div class="admin-container">
+<!-- 密码登录界面 -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h2>🔐 管理后台</h2>
+    <p>请输入管理密码</p>
+    <input type="password" id="adminPassword" placeholder="输入密码" onkeyup="if(event.key==='Enter')verifyPassword()">
+    <button onclick="verifyPassword()">进入后台</button>
+    <div class="login-error" id="loginError">密码错误，请重试</div>
+  </div>
+</div>
+
+<div class="admin-container admin-content" id="adminContent">
   <div class="admin-header">
     <h1 class="admin-title">反馈管理后台</h1>
     <p style="color: #6c7784; margin: 0;">管理用户提交的资源反馈信息</p>

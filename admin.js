@@ -1,7 +1,13 @@
+// ============ 管理后台配置 ============
+const ADMIN_PASSWORD = 'admin123';  // ⚠️ 请修改为你自己的密码
+
 // ============ LeanCloud 配置（与 app.js 保持一致）============
 const LEANCLOUD_CONFIG = {
   appId: '6bijC37wqZ7WEYHldHo2uug4-gzGzoHsz',
   appKey: 'N43jv3jZO671FbvmNC7eoT0J',
+  // Master Key 用于管理后台（从 LeanCloud 控制台 → 设置 → 应用凭证 获取）
+  // 格式：'你的MasterKey,master'
+  masterKey: 'VZ5pxT50MxmyCwH4je7TOsId',  // Master Key
   serverURL: 'https://6bijc37w.lc-cn-n1-shared.com'
 };
 
@@ -9,10 +15,36 @@ let allFeedbacks = [];
 let filteredFeedbacks = [];
 let isCloudMode = false;
 
+// 密码验证
+function verifyPassword() {
+  const input = document.getElementById('adminPassword').value;
+  const errorEl = document.getElementById('loginError');
+  
+  if (input === ADMIN_PASSWORD) {
+    // 验证成功
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('adminContent').classList.add('unlocked');
+    // 保存登录状态（当前会话）
+    sessionStorage.setItem('adminLoggedIn', 'true');
+    // 加载数据
+    loadFeedbacks();
+    updateStats();
+  } else {
+    // 验证失败
+    errorEl.style.display = 'block';
+    document.getElementById('adminPassword').value = '';
+  }
+}
+
 // 页面加载时初始化
 document.addEventListener('DOMContentLoaded', () => {
-  loadFeedbacks();
-  updateStats();
+  // 检查是否已登录（当前会话）
+  if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+    document.getElementById('loginOverlay').style.display = 'none';
+    document.getElementById('adminContent').classList.add('unlocked');
+    loadFeedbacks();
+    updateStats();
+  }
 });
 
 // 加载反馈数据
@@ -30,6 +62,14 @@ async function loadFeedbacks() {
   }
 }
 
+// 获取用于 API 请求的 Key（优先使用 Master Key）
+function getAuthKey() {
+  if (LEANCLOUD_CONFIG.masterKey) {
+    return LEANCLOUD_CONFIG.masterKey + ',master';
+  }
+  return LEANCLOUD_CONFIG.appKey;
+}
+
 // 从云端加载反馈
 async function loadFromCloud() {
   try {
@@ -38,14 +78,16 @@ async function loadFromCloud() {
       {
         headers: {
           'X-LC-Id': LEANCLOUD_CONFIG.appId,
-          'X-LC-Key': LEANCLOUD_CONFIG.appKey
+          'X-LC-Key': getAuthKey()
         }
       }
     );
 
+    const data = await response.json();
+    console.log('API响应:', response.status, data);
+    
     if (response.ok) {
-      const data = await response.json();
-      allFeedbacks = data.results.map(item => ({
+      allFeedbacks = (data.results || []).map(item => ({
         ...item,
         _objectId: item.objectId,
         timestamp: item.timestamp || item.createdAt
@@ -55,10 +97,10 @@ async function loadFromCloud() {
       renderFeedbacks();
       showModeNotice('cloud');
     } else {
-      throw new Error('加载失败');
+      throw new Error(data.error || '加载失败');
     }
   } catch (error) {
-    console.error('云端加载失败:', error);
+    console.error('云端加载失败:', error.message || error);
     // 降级到本地
     const feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
     allFeedbacks = feedbacks.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -179,7 +221,7 @@ async function deleteFeedback(index) {
           method: 'DELETE',
           headers: {
             'X-LC-Id': LEANCLOUD_CONFIG.appId,
-            'X-LC-Key': LEANCLOUD_CONFIG.appKey
+            'X-LC-Key': getAuthKey()
           }
         }
       );
@@ -218,7 +260,7 @@ async function clearAllFeedbacks() {
               method: 'DELETE',
               headers: {
                 'X-LC-Id': LEANCLOUD_CONFIG.appId,
-                'X-LC-Key': LEANCLOUD_CONFIG.appKey
+                'X-LC-Key': getAuthKey()
               }
             }
           );
