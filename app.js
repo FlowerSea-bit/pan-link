@@ -89,20 +89,23 @@ async function saveFeedbackToCloud(data) {
       body: JSON.stringify(data)
     });
 
+    const result = await response.json();
+    console.log('提交响应:', response.status, result);
+    
     if (response.ok) {
       alert('反馈提交成功！感谢您的反馈，我会尽快处理~');
       closeFeedbackModal();
       console.log('反馈已保存到云端:', data);
     } else {
-      throw new Error('提交失败');
+      throw new Error(result.error || '提交失败');
     }
   } catch (error) {
     console.error('云端保存失败:', error);
+    alert('云端提交失败: ' + error.message + '\n已保存到本地');
     // 降级到本地存储
     let feedbacks = JSON.parse(localStorage.getItem('feedbacks') || '[]');
     feedbacks.push(data);
     localStorage.setItem('feedbacks', JSON.stringify(feedbacks));
-    alert('反馈提交成功！');
     closeFeedbackModal();
   }
 }

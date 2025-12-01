@@ -195,16 +195,19 @@ async function saveFeedbackToCloud(data) {
       body: JSON.stringify(data)
     });
 
+    const result = await response.json();
+    console.log('提交响应:', response.status, result);
+    
     if (response.ok) {
       alert('反馈提交成功！感谢您的反馈，我会尽快处理~');
       closeFeedbackModal();
       console.log('反馈已保存到云端:', data);
     } else {
-      throw new Error('提交失败');
+      throw new Error(result.error || '提交失败');
     }
   } catch (error) {
     console.error('云端保存失败:', error);
-    alert('反馈提交失败，请稍后重试');
+    alert('云端提交失败: ' + error.message);
   }
 }
 
