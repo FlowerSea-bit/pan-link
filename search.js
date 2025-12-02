@@ -108,7 +108,7 @@ function renderResults(results) {
         </div>
         <div class="result-card-actions">
           <a href="#" class="action-btn secondary" onclick="copyLink('${link}')">📋 复制分享</a>
-          <a href="#" class="action-btn secondary">👁 查看详情</a>
+          <a href="#" class="action-btn secondary" onclick="showDetailModal('${name.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${link.replace(/'/g, "\\'")}')">👁 查看详情</a>
           <a href="${link}" target="_blank" class="action-btn primary">🔗 立即访问</a>
         </div>
       </div>
@@ -138,6 +138,41 @@ function copyLink(link) {
     alert('链接已复制到剪贴板');
   });
 }
+
+// 详情弹窗功能
+let currentDetailLink = '';
+
+function showDetailModal(name, link) {
+  currentDetailLink = link;
+  
+  // 填充详情内容
+  document.getElementById('detailTitle').textContent = name;
+  document.getElementById('detailCategory').textContent = getCategoryFromName(name);
+  document.getElementById('detailDate').textContent = getRandomDate();
+  document.getElementById('detailSourceText').textContent = getSourceFromLink(link);
+  document.getElementById('detailLink').href = link;
+  document.getElementById('detailLink').textContent = link;
+  
+  // 绑定按钮事件
+  document.getElementById('detailCopyBtn').onclick = () => copyLink(link);
+  document.getElementById('detailVisitBtn').onclick = () => window.open(link, '_blank');
+  
+  // 显示弹窗
+  document.getElementById('detailModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('active');
+  document.body.style.overflow = 'auto';
+}
+
+// 点击弹窗外部关闭
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'detailModal') {
+    closeDetailModal();
+  }
+});
 
 function goHome() {
   window.location.href = 'index.html';
